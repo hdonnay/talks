@@ -1,0 +1,77 @@
+Go's stdlib crypto
+How to Crypto For Fun and Profit
+18:00 17 Sep 2014
+Tags: crypto, gomn
+
+Hank Donnay
+hank@hdonnay.com
+https://github.com/hdonnay/
+@nliadm
+
+* Crypto Overview
+
+- Key exchange (skip)
+- Encryption
+- Verification
+
+* Primitives
+
+- Nonce
+- Cipher
+- MAC
+
+* Encrypt
+
+.code 2014-09-17/simple.go /bad example/,/^}/
+
+* Encrypt
+
+.code 2014-09-17/simple.go /bad example/,/^}/ HLcallout
+
+* Encrypt
+
+.code 2014-09-17/simple.go /good example/,/^}/
+
+* Encrypt
+
+.code 2014-09-17/simple.go /good example/,/^}/ HLcallout
+
+* Verify
+
+`crypto/subtle` and `crypto/hmac` are your friends.
+
+They help avoid timing attacks.
+
+* In practice
+
+*grypt*: deterministic encryption for git
+
+Tricksy bits:
+
+- deterministic
+- multiple schemes
+
+* In practice
+
+.code 2014-09-17/types.go /^type \(/,$
+
+* In practice
+
+`ASN-1`
+
+.image 2014-09-17/trollface.png 400 _
+
+One practical reason...
+
+* In practice
+
+.code 2014-09-17/crypto.go /^func Encrypt/,/EXONE/
+
+* In practice
+
+.code 2014-09-17/crypto.go /EXTWO/,/^}/
+
+* Quickly...
+
+.image 2014-09-17/logo-orange.svg 300 _
+
