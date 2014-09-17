@@ -94,8 +94,8 @@ One practical reason...
 # we're doing pretty much the same steps, in reverse.
 # note the use of `hmac.Equal`
 
-* Quickly...
+* grypt
 
-.image 2014-09-17/logo-orange.svg 300 _
-.caption [[http://polydawn.net][polydawn]]
+.link http://polydawn.net/projects.html#grypt
+.link https://github.com/polydawn/grypt
 
