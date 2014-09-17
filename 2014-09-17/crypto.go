@@ -21,15 +21,15 @@ encryption works.
 
 // Decrypt ciphertext into plaintext.
 func Decrypt(i io.Reader, o io.Writer, k Key) error {
-	header := Header{}
 	headBuf := new(bytes.Buffer)
 	decBuf := new(bytes.Buffer)
-	h := hmac.New(k.Scheme.Hash(), k.HMAC)
 	c, err := k.Scheme.NewCipher(k.Key)
 	if err != nil {
 		return fmt.Errorf("unabled to create cipher: %v", err)
 	}
 
+	// DEXONE OMIT
+	header := Header{}
 	// Read a small chunk and try to parse the header
 	// This is an arbitrary number.
 	_, err = io.CopyN(headBuf, i, 1024)
@@ -37,18 +37,18 @@ func Decrypt(i io.Reader, o io.Writer, k Key) error {
 		return fmt.Errorf("copyN error: %v", err)
 	}
 	rest, err := asn1.Unmarshal(headBuf.Bytes(), &header)
+	// DEXONE OMIT
 	if err != nil {
 		return fmt.Errorf("unmarshal error: %v", err)
 	}
 	if header.Scheme != k.Scheme {
 		return fmt.Errorf("key is unable to decrypt this data")
 	}
-	s := cipher.StreamWriter{
-		S: cipher.NewCTR(c, header.IV),
-		W: decBuf,
-	}
-	mw := io.MultiWriter(s, h)
 
+	// DEXTWO OMIT
+	s := cipher.StreamWriter{S: cipher.NewCTR(c, header.IV), W: decBuf}
+	h := hmac.New(k.Scheme.Hash(), k.HMAC)
+	mw := io.MultiWriter(s, h)
 	// read the encrypted file and decrypt
 	_, err = io.Copy(mw, io.MultiReader(bytes.NewBuffer(rest), i))
 	if err != nil {
@@ -57,6 +57,7 @@ func Decrypt(i io.Reader, o io.Writer, k Key) error {
 	if !hmac.Equal(header.MAC, h.Sum(nil)) {
 		return fmt.Errorf("unable to verify file")
 	}
+	// DEXTWO OMIT
 	_, err = io.Copy(o, decBuf)
 	return err
 }
@@ -71,18 +72,18 @@ func Encrypt(i io.Reader, o io.Writer, k Key) error {
 	if err != nil {
 		return err
 	}
-	hmacIV := hmac.New(k.Scheme.Hash(), k.HMAC)
+	hmacIV := hmac.New(k.Scheme.Hash(), k.HMAC) // HL
 	hmacMsg := hmac.New(k.Scheme.Hash(), k.HMAC)
 	mw := io.MultiWriter(plaintext, hmacIV)
 
 	// Read in the file, calculating the IV and buffering it
-	if _, err := io.Copy(mw, i); err != nil {
+	if _, err := io.Copy(mw, i); err != nil { // HL
 		return err
 	}
-	iv := hmacIV.Sum(nil)[:k.Scheme.BlockSize()]
-	// EXONE OMIT
+	iv := hmacIV.Sum(nil)[:k.Scheme.BlockSize()] // HL
+	// EEXONE OMIT
 
-	// EXTWO OMIT
+	// EEXTWO OMIT
 	// write ciphertext into buffer and the hmac
 	mw = io.MultiWriter(ciphertext, hmacMsg)
 	s := cipher.StreamWriter{
@@ -95,7 +96,7 @@ func Encrypt(i io.Reader, o io.Writer, k Key) error {
 	}
 
 	// serialize our header and append the encrypted file
-	header, err := asn1.Marshal(Header{k.Scheme, iv, hmacMsg.Sum(nil)})
+	header, err := asn1.Marshal(Header{k.Scheme, iv, hmacMsg.Sum(nil)}) // HL
 	_, err = o.Write(header)
 	if err != nil {
 		return err

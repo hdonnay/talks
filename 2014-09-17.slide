@@ -20,6 +20,16 @@ https://github.com/hdonnay/
 - Cipher
 - MAC
 
+# Nonce is usually the IV -- think of it like priming an engine
+# Cipher is the crypto function + mode -- we're using AES
+# MAC (HMAC -- Keyed-Hash Message Authentication Code)
+
+Encrypt-then-MAC:
+
+- Ciphertext integrity
+- Plaintext integrity
+- MAC doesn't leak
+
 * Encrypt
 
 .code 2014-09-17/simple.go /bad example/,/^}/
@@ -27,6 +37,8 @@ https://github.com/hdonnay/
 * Encrypt
 
 .code 2014-09-17/simple.go /bad example/,/^}/ HLcallout
+# Note the all-zero IV -- any unchanging IV is bad
+and no MAC
 
 * Encrypt
 
@@ -54,6 +66,7 @@ Tricksy bits:
 * In practice
 
 .code 2014-09-17/types.go /^type \(/,$
+# This is all the relevant information to defeat the second requirement
 
 * In practice
 
@@ -62,16 +75,27 @@ Tricksy bits:
 .image 2014-09-17/trollface.png 400 _
 
 One practical reason...
+# can append arbitrary data to the end of an ASN-1 structure
 
 * In practice
 
-.code 2014-09-17/crypto.go /^func Encrypt/,/EXONE/
+.code 2014-09-17/crypto.go /^func Encrypt/,/EEXONE/
+# This is how we defeat the first requirement
 
 * In practice
 
-.code 2014-09-17/crypto.go /EXTWO/,/^}/
+.code 2014-09-17/crypto.go /EEXTWO/,/^}/
+
+* In practice
+
+.code 2014-09-17/crypto.go /^func Decrypt/,/$/
+.code 2014-09-17/crypto.go /DEXONE/,/DEXONE/
+.code 2014-09-17/crypto.go /DEXTWO/,/DEXTWO/
+# we're doing pretty much the same steps, in reverse.
+# note the use of `hmac.Equal`
 
 * Quickly...
 
 .image 2014-09-17/logo-orange.svg 300 _
+.caption [[http://polydawn.net][polydawn]]
 
